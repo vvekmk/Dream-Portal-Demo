@@ -1,0 +1,33 @@
+{% extends "app/layout.html" %} {% block content %}
+
+<article id="main">
+  <header class="small">
+    <h2>Events</h2>
+  </header>
+  <section class="wrapper style5" style="padding: 2em 0 2em 0">
+    <div class="inner">
+      <div class="row">
+        <div class="col-6 col-12-medium" style="text-align: center">
+          <h3>RSVP for an event</h3>
+          <p style="width: 80%; margin: 0px auto 50px auto">
+            Let us know if you will be joining any of our upcoming
+            events&mdash;help us make sure that we are adequately prepared for
+            everyone.
+          </p>
+          <a href="{% url 'rsvp'%}" class="button fit">RSVP for an event</a>
+        </div>
+        <div class="col-6 col-12-medium" style="text-align: center">
+          <h3>Volunteer</h3>
+          <p style="width: 80%; margin: 0px auto 50px auto">
+            Volunteers are critical to the succeess of our events and
+            volunteering is a great way to get to know our incredible
+            community&mdash;consider volunteering for us!
+          </p>
+          <a href="{% url 'volunteer' %}" class="button fit">Volunteer</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</article>
+
+{% endblock %}

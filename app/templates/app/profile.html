@@ -1,0 +1,215 @@
+﻿{% extends "app/layout.html" %} {% block content %}
+
+<article id="main">
+  <header class="small">
+    <h2>Dream Profile</h2>
+    <p>
+      If you have recently changed any of the information below, <br />or any
+      information is missing, please update it!
+    </p>
+  </header>
+  <!--Universal Boxes-->
+  <div class="small-tables horizontal">
+    <div>
+      <!--General-->
+      <table>
+        <caption>
+          General
+        </caption>
+        <tr>
+          <th>First Name:</th>
+          <td>{{user.name}}</td>
+        </tr>
+        <tr>
+          <th>Last Name:</th>
+          <td>{{user.last}}</td>
+        </tr>
+        <tr>
+          <th>Phone:</th>
+          <td>{{phone|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Email:</th>
+          <td>{{user.email|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Gender:</th>
+          <td>{{user.gender|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Birth Date:</th>
+          <td>{{user.birthday|default_if_none:"&nbsp;"}}</td>
+        </tr>
+      </table>
+
+      <!--Mailing Info-->
+      <table>
+        <caption>
+          Mailing Address
+        </caption>
+        <tr>
+          <th>Street:</th>
+          <td>{{user.street|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>City:</th>
+          <td>{{user.city|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>State:</th>
+          <td>{{user.state|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Zip Code:</th>
+          <td>{{user.zip|default_if_none:"&nbsp;"}}</td>
+        </tr>
+      </table>
+      <!---->
+
+      <!--Scholar Box-->
+      {% if user.type_of_user == 'scholar' %}
+      <table>
+        <caption>
+          Other
+        </caption>
+        <tr>
+          <th>Country:</th>
+          <td>{{user.country|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Ethnicity:</th>
+          <td>{{user.ethnicity|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Employment:</th>
+          <td>{{user.employed|default_if_none:"&nbsp;"}}</td>
+        </tr>
+      </table>
+
+      <table>
+        <caption>
+          College
+        </caption>
+        <tr>
+          <th>College:</th>
+          <td>{{user.college|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Student ID:</th>
+          <td>{{user.student_id|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>College Email:</th>
+          <td>{{user.college_email|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Major(s):</th>
+          <td>{{user.major|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Minor(s):</th>
+          <td>{{user.minor|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>GPA:</th>
+          <td>{{user.gpa|default_if_none:"&nbsp;"}}</td>
+        </tr>
+      </table>
+      {% endif %}
+
+      <!--Mentee Box-->
+      {% if user.type_of_user == 'mentee' %}
+      <table>
+        <caption>
+          Other
+        </caption>
+        <tr>
+          <th>Country:</th>
+          <td>{{user.country|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Ethnicity:</th>
+          <td>{{user.ethnicity|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Employment:</th>
+          <td>{{user.employed|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Area(s) of Interest:</th>
+          <td>{{user.areas_of_interest|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Year of Study:</th>
+          <td>{{user.year_of_study|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Colleges Applied To:</th>
+          <td>{{user.colleges_applied|default_if_none:"&nbsp;"}}</td>
+        </tr>
+        <tr>
+          <th>Scholarships Applied To:</th>
+          <td>{{user.scholarships_applied|default_if_none:"&nbsp;"}}</td>
+        </tr>
+      </table>
+      {% endif %}
+    </div>
+
+    <!--Donor Boxes-->
+    {% if user.type_of_user == 'donor' %}
+    <div>
+      <div>
+        <p
+          style="
+            text-align: center;
+            font-size: 20px;
+            margin-top: 10px;
+            margin-bottom: 0px;
+          "
+        >
+          Named Scholarship(s)
+        </p>
+        {% for scholarship in scholarships %}
+        <table class="non_edit_table">
+          {% for key, value in scholarship.items%} {% if key == 'students' %}
+          <tr>
+            <th>Student(s):</th>
+            <td>
+              {% for student in value %}
+              {{student.name|default_if_none:"&nbsp;"}}{% if not forloop.last
+              %},{%endif%} {% endfor %}
+            </td>
+          </tr>
+          {% elif key == 'Established__c' %}
+          <tr>
+            <th>Est:</th>
+            <td>{{value|default_if_none:"&nbsp;"}}</td>
+          </tr>
+          {% elif key == 'Scholarship_Description__c' %}
+          <tr>
+            <th>Description:</th>
+            <td>{{value|default_if_none:"&nbsp;"}}</td>
+          </tr>
+          {% elif key == 'Name'%}
+          <tr>
+            <th>{{key}}:</th>
+            <td>{{value|default_if_none:"&nbsp;"}}</td>
+          </tr>
+          {% endif %} {% endfor %}
+        </table>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div style="text-align: center">
+      <input type="submit" value="Edit Profile" name="edit" />
+      <input type="submit" value="Edit Login Info" name="usrnm" />
+    </div>
+  </form>
+</article>
+
+{% endblock %}

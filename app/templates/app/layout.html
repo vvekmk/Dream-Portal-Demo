@@ -1,0 +1,89 @@
+﻿<head>
+        {% load staticfiles %}
+		<title> {{title}} - Dream Portal</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<noscript><link rel="stylesheet" href="{% static 'app/content/noscript.css' %}" /></noscript>
+        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+        <link rel="stylesheet" href="{% static 'app/content/main.css' %}" />
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+        
+        
+        <script src="{% static 'app/scripts/pdf.js' %}"></script>
+        <script src="{% static 'app/scripts/pdf.worker.js' %}"></script>
+</head>
+
+<body>
+    <div id="page wrapper">
+    <!-- Header -->
+    {% if request.path == "/" %}
+        <header id="header" class="alt">
+    {% else %}
+        <header id="header">
+    {% endif %}
+        <h1><a href="{% url 'home'%}">Dream Portal</a></h1>
+        <nav id="nav">
+            <ul>
+                <li class="special">
+                    {% if user.is_authenticated %}
+                        <a style='padding: 0px; margin: 0 20px 0 0;'>Welcome, {{ user.name }}!</a>
+                    {% endif %}
+
+                    <a href="#menu" class="menuToggle"><span>Menu</span></a>
+                    <div id="menu">
+                        <form id="logoutForm" action="/logout/" method="post">
+                        {% csrf_token %}
+                            <ul>
+                                {% if not user.is_authenticated %}
+                                    <li><a href="{% url 'login' %}">Log In</a></li>
+                                {% else %}
+                                        <li><a href="javascript:document.getElementById('logoutForm').submit()">Log out</a></li>
+                                {% endif %}
+                                <li><a href="{% url 'home' %}">Home</a></li>
+                                <li><a href="{% url 'events' %}">Events</a></li>
+                                <li><a href="{% url 'profile' %}">Profile</a></li>
+                                <li><a href="{% url 'about' %}">About</a></li>
+                            </ul>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    {% if messages %}
+    <ul class='messages'>
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }} popup"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+    <!-- Footer -->
+    <footer id="footer">
+        <ul class="icons">
+            <li><a href="https://twitter.com/DreamProjectVA" class="icon brands fa-twitter"></a></li>
+            <li><a href="https://www.facebook.com/DreamProject.VA" class="icon brands fa-facebook-f"></a></li>
+            <li><a href="https://www.instagram.com/dreamprojectva/" class="icon brands fa-instagram"></a></li>
+            <li><a href="mailto:carlos@dreamproject-va.org" class="icon solid fa-envelope"></a></li>
+        </ul>
+        <ul class="copyright">
+            <li>&copy; {{ year }} - Dream Portal</li>
+        </ul>
+    </footer>
+</div>
+
+{% block scripts %}
+    <script src="{% static 'app/scripts/dreamportal.js' %}"></script>
+    <script src="{% static 'app/scripts/jquery.min.js' %}"></script>
+    <script src="{% static 'app/scripts/jquery.scrollex.min.js' %}"></script>
+    <script src="{% static 'app/scripts/jquery.scrolly.min.js' %}"></script>
+    <script src="{% static 'app/scripts/browser.min.js' %}"></script>
+    <script src="{% static 'app/scripts/breakpoints.min.js' %}"></script>
+    <script src="{% static 'app/scripts/util.js' %}"></script>
+    <script src="{% static 'app/scripts/main.js' %}"></script>
+{% endblock %}
+
+</body>
+</html>

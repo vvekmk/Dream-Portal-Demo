@@ -1,0 +1,61 @@
+{% extends "app/layout.html" %} {% load docname %} {% block content %}
+
+<article id="main">
+  <header class="small">
+    <h2>Submit a Document</h2>
+    <p>Only extensions allowed are PDF, JPEG, and PNG</p>
+  </header>
+  <br />
+  <form action="" method="post" enctype="multipart/form-data">
+    <div class="small-tables horizontal fixed">
+      <table>
+        {% for doc, info in requirements.items %}
+        <tr>
+          <th style="text-align: right; padding-right: 10px; width: 35%">
+            {{doc|docname}}
+          </th>
+          <td>
+            {% if info.Uploaded %}Received{%else%}<i style="color: orange"
+              >Missing</i
+            >{%endif%}
+          </td>
+          <td>
+            {% if info.Id %}<input
+              type="submit"
+              value="Delete"
+              name="{{info.Id}}"
+            />{%endif%}
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    {% csrf_token %} {{form.errors}}
+    <div class="small-tables horizontal fixed">
+      <table>
+        {% for field in form %}
+        <tr>
+          <th style="text-align: right; padding-right: 10px; width: 35%">
+            {{field.label}}: *
+          </th>
+          <td>{{field}}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div style="text-align: center">
+      <a href="{% url 'scholarship_redir' %}" class="button green">Go back</a>
+      <input type="submit" value="Upload" class="button green" name="save" />
+      <input
+        type="submit"
+        value="Complete Application"
+        class="button red"
+        name="complete"
+      />
+    </div>
+  </form>
+
+  {% endblock %}
+</article>

@@ -1,0 +1,25 @@
+{% extends "app/layout.html" %} {% block content %}
+
+<article id="main">
+  <header class="small">
+    <h2>{{title}}</h2>
+    <p>{{desc}}</p>
+  </header>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="small-tables">
+      <table>
+        {{form.as_table}}
+      </table>
+    </div>
+
+    <div style="text-align: center">
+      <input type="hidden" name="next" value="{{ request.path }}" />
+
+      <a href="#" class="button red" onclick="history.go(-1);">Go back</a>
+      <input type="submit" class="green" value="Save Changes" name="{{id}}" />
+    </div>
+  </form>
+
+  {% endblock %}
+</article>

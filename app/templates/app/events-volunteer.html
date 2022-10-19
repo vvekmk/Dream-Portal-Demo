@@ -1,0 +1,37 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+
+<article id="main">
+    <header class='small'>
+        <h2>Volunteer</h2>
+        {% if len == 0 %}
+            <p style='text-align: center'>There are no volunteering opportunities right now</p>
+        </header>
+        </article>
+        {% else %}
+    </header>
+    <br>
+    <div class='vertical'>
+        <form action="" method="post">
+            {% csrf_token %}
+            {% for name, jobs in events.items %}
+            <table style="width: 90%; margin: 0 auto;">
+                <caption style='font-size: 15pt;'>{{name}}</caption>
+                <tr>
+                    <th>Job</th>
+                    <th>Sign up</th>
+                </tr>
+                {% for job in jobs %}
+                <tr>
+                    <td>{{job.Name}}</td>
+                    <td>
+                        <input type="submit" value="Sign Up" class="red" name="{{job.Id}}">
+                    </td>
+                </tr>
+                {% endfor %%}
+            </table>
+            {% endfor %}
+            </form>
+    {% endif %}
+{% endblock %}

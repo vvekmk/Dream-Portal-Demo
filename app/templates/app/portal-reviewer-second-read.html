@@ -1,0 +1,545 @@
+{% extends "app/layout.html" %}
+
+{% load reviewername formatcomment %}
+
+{% load staticfiles %}
+
+{% block content %}
+
+<article id="main">
+    <header class='small'>
+        <h2>{{title}}</h2>
+        {% if stage == 1 %}
+            <p>Welcome, reviewer.</p>
+        {% elif stage == 2 %}
+            <p>Incomplete submissions are marked red&mdash;complete ones are gold.</p>
+        {% elif stage == 3 %}
+            <p>
+                First Read Assigned to <b>{{applicant.Reviewer_1__c|reviewername}}</b> and <b>{{applicant.Reviewer_2__c|reviewername}}</b>.<br>
+                Interviewed by <b>{{applicant.Interview_Panel__c|reviewername}}</b>.<br>
+                Second Read Assigned to <b>{{applicant.Reviewer_3__c|reviewername}}</b> and <b>{{applicant.Reviewer_4__c|reviewername}}</b>.
+            </p>
+        {% endif %}
+    </header>
+    <br>
+    {% if stage == 1 %}
+        <form method="POST">
+            {% csrf_token %}
+            <div style='text-align: center'>
+                <input type="submit" value="All applications" name="all">
+                <input type="submit" value="My applications only" name="mine">
+                <input type="submit" value="Renewal Applications" name="renewal">
+            </div>
+        </form>
+    {% elif stage == 2 %}
+        <p style='text-align: center;'>Hide by Interview Decision:<br>
+            <button id='passbtn' onclick="toggle_row('pass', 'passbtn')">Yes</button>
+            <button id='maybebtn' onclick="toggle_row('maybe', 'maybebtn')">Maybe</button>
+            <button id='failbtn' onclick="toggle_row('fail', 'failbtn')">No</button>
+        </p>
+        <br>
+        <div class='vertical'>
+            <form method="POST">
+                {% csrf_token %}
+                <table style="width: 90%; margin: 0 auto;">
+                    <tr>
+                        <th>Last</th>
+                        <th>First</th>
+                        <th>Reviewer 1</th>
+                        <th>Reviewer 2</th>
+                        <th>Interview</th>
+                        <th>Application</th>
+                    </tr>
+
+                    {% for applicant in applicants.records %}
+
+                        {% if applicant.Interview_Vote__c|floatformat == '0' %} <tr style='display: table-row;' class='fail'>
+
+                        {% elif applicant.Interview_Vote__c|floatformat == '2' %} <tr style='display: table-row;' class='pass'>
+
+                        {% elif applicant.Interview_Vote__c|floatformat == '1' %} <tr style='display: table-row;' class='maybe'>
+
+                        {% else %} <tr style='display: table-row;' id='none'>
+                        {% endif %}
+
+                            <td style='text-align: center;'>{{applicant.LastName}}</td>
+                            <td style='text-align: center;'>{{applicant.FirstName}}</td>
+                            <td style='text-align: center;'>
+
+                            {% if reviewer == applicant.Reviewer_3__c %}
+                                {% if "?" not in applicant.Reviewer_3_Vote__c %}
+                                <div style='color: var(--finished); font-size: 30px'>
+                                {% else %} <div style='color: var(--pending); font-size: 30px'> {% endif %}
+                                    {% if applicant.Reviewer_3_Vote__c == "0" or applicant.Reviewer_3_Vote__c == "0?" %} <i class="fas fa-thumbs-down"></i>
+                                    {% elif applicant.Reviewer_3_Vote__c == "1" or applicant.Reviewer_3_Vote__c == "1?" %} <i class="fas fa-balance-scale"></i>
+                                    {% elif applicant.Reviewer_3_Vote__c == "2" or applicant.Reviewer_3_Vote__c == "2?" %} <i class="fas fa-thumbs-up"></i>
+                                    {% endif %}
+                                </div>
+                            {% elif reviewer == applicant.Reviewer_4__c and applicant.Reviewer_4_Vote__c != None and "?" not in applicant.Reviewer_4_Vote__c %}
+                                <div style='font-size: 30px'>
+                                    {% if applicant.Reviewer_3_Vote__c == "0" %} <i class="fas fa-thumbs-down"></i>
+                                    {% elif applicant.Reviewer_3_Vote__c == "1" %} <i class="fas fa-balance-scale"></i>
+                                    {% elif applicant.Reviewer_3_Vote__c == "2" %} <i class="fas fa-thumbs-up"></i>
+                                    {% endif %}
+                                </div>
+                            {% elif applicant.Reviewer_3_Vote__c != None and applicant.Reviewer_4_Vote__c != None and "?" not in applicant.Reviewer_3_Vote__c and "?" not in applicant.Reviewer_4_Vote__c %}
+                                <div style='font-size: 30px'>
+                                    {% if applicant.Reviewer_3_Vote__c == "0" %} <i class="fas fa-thumbs-down"></i>
+                                    {% elif applicant.Reviewer_3_Vote__c == "1" %} <i class="fas fa-balance-scale"></i>
+                                    {% elif applicant.Reviewer_3_Vote__c == "2" %} <i class="fas fa-thumbs-up"></i>
+                                    {% endif %}
+                                </div>
+                            {% else %}{{applicant.Reviewer_3__c|reviewername}}{% endif %}
+                            </td>
+
+                            <td style='text-align:center;'>
+                            {% if reviewer == applicant.Reviewer_4__c %}
+                                {% if "?" not in applicant.Reviewer_4_Vote__c %}
+                                    <div style='color: var(--finished); font-size: 30px'>
+                                {% else %} <div style='color: var(--pending); font-size: 30px'> {% endif %}
+                                    {% if applicant.Reviewer_4_Vote__c == "0" or applicant.Reviewer_4_Vote__c == "0?" %} <i class="fas fa-thumbs-down"></i>
+                                    {% elif applicant.Reviewer_4_Vote__c == "1" or applicant.Reviewer_4_Vote__c == "1?" %} <i class="fas fa-balance-scale"></i>
+                                    {% elif applicant.Reviewer_4_Vote__c == "2" or applicant.Reviewer_4_Vote__c == "2?" %} <i class="fas fa-thumbs-up"></i>
+                                    {% endif %}
+                                </div>
+                            {% elif reviewer == applicant.Reviewer_3__c and applicant.Reviewer_3_Vote__c != None and "?" not in applicant.Reviewer_3_Vote__c %}
+                                <div style='font-size: 30px'>
+                                    {% if applicant.Reviewer_4_Vote__c == "0" %} <i class="fas fa-thumbs-down"></i>
+                                    {% elif applicant.Reviewer_4_Vote__c == "1" %} <i class="fas fa-balance-scale"></i>
+                                    {% elif applicant.Reviewer_4_Vote__c == "2" %} <i class="fas fa-thumbs-up"></i>
+                                    {% endif %}
+                                </div>
+                            {% elif applicant.Reviewer_3_Vote__c != None and applicant.Reviewer_4_Vote__c != None and "?" not in applicant.Reviewer_3_Vote__c and "?" not in applicant.Reviewer_4_Vote__c %}
+                                <div style='font-size: 30px'>
+                                    {% if applicant.Reviewer_4_Vote__c == "0" %} <i class="fas fa-thumbs-down"></i>
+                                    {% elif applicant.Reviewer_4_Vote__c == "1" %} <i class="fas fa-balance-scale"></i>
+                                    {% elif applicant.Reviewer_4_Vote__c == "2" %} <i class="fas fa-thumbs-up"></i>
+                                    {% endif %}
+                                </div>
+                            {% else %}{{applicant.Reviewer_4__c|reviewername}}{% endif %}
+                            </td>
+
+                            <td>
+                                {% if applicant.Reviewer_3_Vote__c != None and applicant.Reviewer_4_Vote__c != None and "?" not in applicant.Reviewer_3_Vote__c and "?" not in applicant.Reviewer_4_Vote__c %}
+                                    <div style='font-size: 30px'>
+                                        {% if applicant.Interview_Vote__c == "0" %} <i class="fas fa-thumbs-down"></i>
+                                        {% elif applicant.Interview_Vote__c == "1" %} <i class="fas fa-balance-scale"></i>
+                                        {% elif applicant.Interview_Vote__c == "2" %} <i class="fas fa-thumbs-up"></i>
+                                        {% endif %}
+                                    </div>
+                                {% else %} Hidden {% endif %}
+                            </td>
+
+                            <td>
+                                <div style='text-align: center'>
+                                    {% if reviewer == applicant.Reviewer_4__c and applicant.Reviewer_4_Vote__c != None and "?" in applicant.Reviewer_4_Vote__c or reviewer == applicant.Reviewer_3__c and applicant.Reviewer_3_Vote__c != None and "?" in applicant.Reviewer_3_Vote__c %}
+                                        <input type="submit" value="View" name={{applicant.Id}}>
+                                    {% elif reviewer == applicant.Reviewer_4__c and applicant.Reviewer_4_Vote__c != None or reviewer == applicant.Reviewer_3__c and applicant.Reviewer_3_Vote__c != None %}
+                                        <input type="submit" value="View" class="green" name={{applicant.Id}}>
+                                    {% else %}
+                                        <input type="submit" value="View" class="blue" name={{applicant.Id}}>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <br>
+                <div style='text-align: center;'>
+                    <a href="#" class='button red' onclick="history.go(-1);">Go back</a>
+                </div>
+            </form>
+    {% elif stage == 3 %}
+        <div class='horizontal'>
+            <table>
+                <tr class='divider'><th colspan = 2>General</th></tr>
+                <tr><th>First</th><td>{{applicant.FirstName}}</td></tr>
+                <tr><th>Last</th><td>{{applicant.LastName}}</td></tr>
+                <tr><th>Phone</th><td>{{applicant.Phone}}</td></tr>
+                <tr><th>Email</th><td>{{applicant.Email}}</td></tr>
+                <tr><th>Country</th><td>{{applicant.Country_of_Origin__c}}</td></tr>
+                <tr><th>Ethnicity</th><td>{{applicant.Ethnicity__c}}</td></tr>
+                <tr><th>Birthdate</th><td>{{applicant.Birthdate}}</td></tr>
+                <tr><th>Employed</th><td>{{applicant.Employment_Status__c}}</td></tr>
+                {% if applicant.DP_Status__c != 'Renewed' %} <tr><th>Eligible for Federal Aid</th><td>{{applicant.FAFSA__c}}</td></tr> {% endif %}
+
+                <tr class='divider'><th colspan = 2>Address</th></tr>
+                <tr><th>Street</th><td>{{applicant.MailingStreet}}</td></tr>
+                <tr><th>City</th><td>{{applicant.MailingCity}}</td></tr>
+                <tr><th>State</th><td>{{applicant.MailingState}}</td></tr>
+                <tr><th>ZIP</th><td>{{applicant.MailingPostalCode}}</td></tr>
+
+                {% if applicant.Primary_College_Affiliation_Text__c != 'None'%}
+                    <tr class='divider'><th colspan = 2>College Information</th></tr>
+                    <tr><th>Name</th><td>{{applicant.Primary_College_Affiliation_Text__c}}</td></tr> <!---->
+                    {% if applicant.DP_Status__c != 'Renewed'%}<tr><th>Year</th><td>{{applicant.Description}}</td></tr> {% endif %}<!---->
+                    <tr><th>Major</th><td>{{applicant.Major_s__c}}</td></tr><!---->
+                    <tr><th>Minor</th><td>{{applicant.Minor_s__c}}</td></tr><!---->
+                    <tr><th>GPA</th><td>{{applicant.GPA__c}}</td></tr><!---->
+                    <tr><th>Credits</th><td>{{applicant.credits__c}}</td></tr><!---->
+                    {% if applicant.DP_Status__c != 'Renewed'%}<tr class='divider'><th colspan = 2>High School Information</th></tr>
+                    {% else %}
+                        <tr><th>Expected</th><td>{{applicant.Expected_Graduation__c}}</td></tr>
+                        <tr><th>GPA Below 2.5</th><td>{{applicant.GPA_Below_2_5__c}}</td></tr>
+                    {% endif %}
+                {% elif applicant.DP_Status__c != 'Renewed' %}
+                    <tr class='divider'><th colspan = 2>High School Information</th></tr>
+                {% endif %}
+                {% if applicant.Rec_1__c != 'None' %}
+                <tr><th>Name</th><td>{{applicant.High_School__c}}</td></tr>
+                <tr><th>City</th><td>{{applicant.High_School_City__c}}</td></tr>
+                <tr><th>GPA</th><td>{{applicant.HS_GPA__c}}</td></tr>
+                <tr><th>Test Scores</th><td>{{applicant.HS_Test_Scores__c}}</td></tr>
+                <tr class='divider'><th colspan = 2>Recommender Information</th></tr>
+                <tr><th>Rec #1</th><td>{{applicant.Rec_1__c}}</td></tr>
+                <tr><th>Rec #2</th><td>{{applicant.Rec_2__c}}</td></tr>
+                {% endif %}
+            </table>
+            <br>
+
+            <table>
+                {% autoescape off %}
+                <tr class='divider'><th colspan = 2>Application Review</th></tr>
+                <tr><th>Reviewers</th><td>
+                    First Read: <b>{{applicant.Reviewer_1__c|reviewername}}</b> and <b>{{applicant.Reviewer_2__c|reviewername}}</b><br>
+                    Interviewed by: <b>{{applicant.Interview_Panel__c|reviewername}}</b><br>
+                    Second Read: <b>{{applicant.Reviewer_3__c|reviewername}}</b> and <b>{{applicant.Reviewer_4__c|reviewername}}</b>
+                </td></tr>
+                <tr class='divider'><th colspan = 2>First Read</th></tr>
+                <tr><th>Reviewer 1</th><td>{{applicant.Reviewer_1_Comments__c}}</td></tr>
+                <tr><th>Reviewer 2</th><td>{{applicant.Reviewer_2_Comments__c}}</td></tr>
+                <tr class='divider'><th colspan = 2>Interview</th></tr>
+                <tr style='display:
+                    {% if reviewer == applicant.Reviewer_4__c %}
+                        {% if applicant.Reviewer_4_Vote__c == "None" or "?" in applicant.Reviewer_4_Vote__c %}none
+                            {% else %}table-row{%endif%}
+                        {% elif reviewer == applicant.Reviewer_3__c %}
+                            {% if applicant.Reviewer_3_Vote__c == "None" or "?" in applicant.Reviewer_3_Vote__c %}none
+                        {% else %}table-row{%endif%}
+                    {% endif %}'>
+                    <th>Decision</th>
+                    <td>
+                        {% if applicant.Interview_Vote__c == '2' %} Absolutely Must Fund
+                        {% elif applicant.Interview_Vote__c == '1' %} Fund if possible
+                        {% elif applicant.Interview_Vote__c == '0' %} Do not fund
+                        {% else %} None
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr><th>Interview Comments</th><td>{{applicant.Interview_Comments__c}}</td>
+                <!-- <tr class='divider'><th colspan = 2>Second Read</th></tr> -->
+                <!-- <tr><th>Reviewer 3</th><td>{{applicant.Reviewer_3_Comments__c}}</td></tr>
+                <tr><th>Reviewer 4</th><td>{{applicant.Reviewer_4_Comments__c}}</td></tr> -->
+                {% endautoescape %}
+            </table>
+            <br><br><br>
+            {% if applicant.DP_Status__c != 'Renewed' %}
+                <table style='width: 95%; margin: 0 auto'>
+                    {% autoescape off %}
+                        <tr class='divider'><th colspan = 2>Honors</th></tr>
+                        <tr><td colspan = 2>{{applicant.Honors_Awards__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>College Applied to</th></tr>
+                        <tr><td colspan = 2>{{applicant.Colleges_Applied_to__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Financial Thoughts</th></tr>
+                        <tr><td colspan = 2>{{applicant.Financial_Thoughts__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 1</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_1__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 2</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_2__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 3</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_3__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 4</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_4__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 5</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_5__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Care for Others</th></tr>
+                        <tr><td colspan = 2 style='border-bottom-left-radius: 10px;'>{{applicant.Care_for_Others__c}}</td></tr>
+                    {% endautoescape %}
+                </table>
+            {% else %}
+                {% autoescape off %}
+                    </div><div class='horizontal smaller'>
+                    <table>
+                            <tr class='divider'><th colspan = 2>Check all activities you or your parents participated in this year</th></tr>
+                            <tr><td colspan = 2 style='border-bottom-left-radius:10px;'>{{applicant.Commitment_to_the_Dream_Project__c}}</td></tr>
+                    </table>
+                    <br>
+                    <table>
+                        <tr class='divider'><th colspan = 2>Internal Records for Mandatory Events</th></tr>
+                        <tr><th>Participation</th><td style='width: 50%;'>{% if applicant.participation == 'True' %} Complete {% else %} Did not Complete {% endif %}</td></tr>
+                        <tr><th>Fall Survey</th><td>{% if applicant.fall_survey == 'True' %} Completed {% else %} Did not complete {% endif %}</td></tr>
+                    </table>
+                {% endautoescape %}
+            {% endif %}
+        </div>
+        <br><br><br>
+       
+        <h2 style='text-align:center'>Supporting Documents</h2>
+
+        {% for file in attachments.pdfs %}
+        <p style="width: 900px; margin:0 auto">{{file.name}}</p>
+        <div class='attachments' id="{{file.varname}}"></div><br><br>
+        {% endfor %}
+
+        {% for file in attachments.images %}
+        <p style="width: 900px; margin:0 auto">{{file.name}}</p>
+        <div class='attachments'>
+            <div style='text-align:center'>
+                <img style='max-width:75%; margin: 0 auto' src="data:{{file.type}};base64,{{file.file}}">            
+            </div>
+        </div>
+        {% endfor %}
+
+        <script>           
+        //Dictionary of attachments
+        var filenames = [{% for file in attachments.pdfs %}"{{file.varname}}"{% if not forloop.last %},{% endif %}{% endfor %}];
+        var files = [{% for file in attachments.pdfs %}"{{file.file}}"{% if not forloop.last %},{% endif %}{% endfor %}];
+        
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "{% static 'app/scripts/pdf.worker.js' %}"
+        for (file in files) {
+            let filename = filenames[file]          
+            var loadingTask = pdfjsLib.getDocument({data: atob(files[file])})
+            
+            var thePdf = null;
+
+            loadingTask.promise.then(function(pdf) {
+                thePdf = pdf;
+                viewer = document.getElementById(filename);
+
+                for(page = 1; page <= pdf.numPages; page++) 
+                    {
+                        canvas = document.createElement("canvas");    
+                        canvas.className = 'pdf-page-canvas';         
+                        viewer.appendChild(canvas);            
+                        renderPage(page, canvas);
+                    }
+            });
+
+            function renderPage(pageNumber, canvas) {
+                thePdf.getPage(pageNumber).then(function(page) {
+                    
+                    var scale = 5;
+                    var viewport = page.getViewport({scale: scale});
+                    var context = canvas.getContext('2d');
+
+                    if (viewport.height > 4300 || viewport.width > 4300){
+                        var viewport = page.getViewport({scale: 1});    
+                    }
+                    
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                
+                    var renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                        };
+                    var renderTask = page.render(renderContext);
+                    renderTask.promise.then(function () {});
+                })
+            };
+
+        }
+        </script>
+
+        </div>
+
+        <br>
+        <a id="rubric"></a>
+        <form method="POST">
+            {% csrf_token %}
+            <div>
+                {% if reviewer == applicant.Reviewer_3__c %}
+                    {% if applicant.Reviewer_3_Vote__c == "None" or "?" in applicant.Reviewer_3_Vote__c %}
+                        <p class='comments'>
+                            {{form.Reviewer_3_Comments__c.label_tag}}
+                            {{form.Reviewer_3_Comments__c}}
+                        </p>
+                    {% else %}
+                        <p class='comments'>
+                        {{form.Reviewer_3_Comments__c.label_tag}}
+                        {{form.Reviewer_3_Comments__c.value|formatcomment}}
+                        </p>
+                        <br><br>
+                        <p class='comments'>
+                        {{form.Reviewer_4_Comments__c.label_tag}}
+                        {{form.Reviewer_4_Comments__c.value|formatcomment}}
+                        </p>
+                    {% endif %}
+                {% endif %}
+
+                {% if reviewer == applicant.Reviewer_4__c %}
+                    {% if applicant.Reviewer_4_Vote__c == "None" or "?" in applicant.Reviewer_4_Vote__c %}
+                        <p class='comments'>
+                            {{form.Reviewer_4_Comments__c.label_tag}}
+                            {{form.Reviewer_4_Comments__c}}
+                        </p>
+                    {% else %}
+                        <p class='comments'>
+                        {{form.Reviewer_3_Comments__c.label_tag}}
+                        {{form.Reviewer_3_Comments__c.value|formatcomment}}
+                        </p>
+                        <br><br>
+                        <p class='comments'>
+                        {{form.Reviewer_4_Comments__c.label_tag}}
+                        {{form.Reviewer_4_Comments__c.value|formatcomment}}
+                        </p>
+                    {% endif %}
+                {% endif %}
+
+                {% if form.reviewer != 'Observer' %}
+                    <br>
+                    <table class='vertical likert'>
+                    <tr><th colspan=3>{{form.Vote.label_tag}}</th></tr>
+                {% endif %}
+
+                {% if reviewer == applicant.Reviewer_3__c %}
+                    {% if applicant.Reviewer_3_Vote__c == "None" or "?" in applicant.Reviewer_3_Vote__c %}
+                        <tr style='text-align: center;'>
+                            <td>
+                                <label for="{{ form.Vote.0.id_for_label }}">
+                                    <i class="fas fa-thumbs-up" style='font-size:30px'></i><br>
+                                    <span>{{form.Vote.0.choice_label}}</span><br>
+                                    {{form.Vote.0.tag}}
+                                </label>
+                            </td>
+                            <td>
+                                <label for="{{ form.Vote.1.id_for_label }}">
+                                    <i class="fas fa-balance-scale" style='font-size:30px'></i><br>
+                                    <span>{{form.Vote.1.choice_label}}</span><br>
+                                    {{form.Vote.1.tag}}
+                                </label>
+                            </td>
+                            <td>
+                                <label for="{{ form.Vote.2.id_for_label }}">
+                                    <i class="fas fa-thumbs-down" style='font-size:30px'></i><br>
+                                    <span>{{form.Vote.2.choice_label}}</span><br>
+                                    {{form.Vote.2.tag}}
+                                </label>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td style="{% if applicant.Reviewer_3_Vote__c == '2' %}color: gold;{% endif %} padding: 10px; text-align:center;">
+                                    <i class="fas fa-thumbs-up" style='font-size:30px'></i>
+                                </td>
+                            <td style="{% if applicant.Reviewer_3_Vote__c == '1' %} color: gold; {% endif %} padding: 10px; text-align:center;">
+                                <i class="fas fa-balance-scale" style='font-size:30px'></i>
+                            </td>
+                            <td style="{% if applicant.Reviewer_3_Vote__c == '0' %} color: gold; {% endif %} padding: 10px; text-align:center;">
+                                <i class="fas fa-thumbs-down" style='font-size:30px'></i>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endif %}
+
+                {% if reviewer == applicant.Reviewer_4__c %}
+                    {% if applicant.Reviewer_4_Vote__c == "None" or "?" in applicant.Reviewer_4_Vote__c %}
+                        <tr style='text-align: center;'>
+                            <td>
+                                <label for="{{ form.Vote.0.id_for_label }}">
+                                    <i class="fas fa-thumbs-up" style='font-size:30px'></i><br>
+                                    <span>{{form.Vote.0.choice_label}}</span><br>
+                                    {{form.Vote.0.tag}}
+                                </label>
+                            </td>
+                            <td>
+                                <label for="{{ form.Vote.1.id_for_label }}">
+                                    <i class="fas fa-balance-scale" style='font-size:30px'></i><br>
+                                    <span>{{form.Vote.1.choice_label}}</span><br>
+                                    {{form.Vote.1.tag}}
+                                </label>
+                            </td>
+                            <td>
+                                <label for="{{ form.Vote.2.id_for_label }}">
+                                    <i class="fas fa-thumbs-down" style='font-size:30px'></i><br>
+                                    <span>{{form.Vote.2.choice_label}}</span><br>
+                                    {{form.Vote.2.tag}}
+                                </label>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td style="{% if applicant.Reviewer_4_Vote__c == '2' %}color: gold;{% endif %} padding: 10px; text-align:center;">
+                                    <i class="fas fa-thumbs-up" style='font-size:30px'></i>
+                                </td>
+                            <td style="{% if applicant.Reviewer_4_Vote__c == '1' %} color: gold; {% endif %} padding: 10px; text-align:center;">
+                                <i class="fas fa-balance-scale" style='font-size:30px'></i>
+                            </td>
+                            <td style="{% if applicant.Reviewer_4_Vote__c == '0' %} color: gold; {% endif %} padding: 10px; text-align:center;">
+                                <i class="fas fa-thumbs-down" style='font-size:30px'></i>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endif %}
+                </table>
+
+                <input type="hidden" name="id" value='{{form.id}}'/>
+                <input type="hidden" name="reviewer" value='{{form.reviewer}}'/>
+
+            </div>
+
+            {% if form.reviewer == 'Observer' and applicant.Reviewer_3_Vote__c != "None" and "?" not in applicant.Reviewer_3_Vote__c and applicant.Reviewer_4_Vote__c != "None" and "?" not in applicant.Reviewer_4_Vote__c %}
+
+                <p class='comments'>
+                        {{form.Reviewer_3_Comments__c.label_tag}}
+                        {{form.Reviewer_3_Comments__c.value|formatcomment}}
+                </p>
+                <br><br>
+                <p class='comments'>
+                        {{form.Reviewer_4_Comments__c.label_tag}}
+                        {{form.Reviewer_4_Comments__c.value|formatcomment}}
+                </p>
+                <br>
+                <div class="vertical smaller">
+                    <table>
+                        <tr>
+                            <th>{{applicant.Reviewer_3__c|reviewername}}</th>
+                            <th>{{applicant.Reviewer_4__c|reviewername}}</th>
+                        </tr>
+                        <tr>
+                            <td style='padding: 10px 0px 10px 0px;'>
+                                {% if applicant.Reviewer_3_Vote__c == '0' %} <i class="fas fa-thumbs-down" style='font-size:30px'></i>
+                                {% elif applicant.Reviewer_3_Vote__c == '1' %} <i class="fas fa-balance-scale" style='font-size:30px'></i>
+                                {% elif applicant.Reviewer_3_Vote__c == '2' %} <i class="fas fa-thumbs-up" style='font-size:30px'></i>
+                                {% endif %}
+                            </td>
+                            <td style='padding: 10px 0px 10px 0px;'>
+                                {% if applicant.Reviewer_4_Vote__c == '0' %} <i class="fas fa-thumbs-down" style='font-size:30px'></i>
+                                {% elif applicant.Reviewer_4_Vote__c == '1' %} <i class="fas fa-balance-scale" style='font-size:30px'></i>
+                                {% elif applicant.Reviewer_4_Vote__c == '2' %} <i class="fas fa-thumbs-up" style='font-size:30px'></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            {% endif %}
+            <br>
+            <div style='text-align: center;'>
+                <a href="#" class='button red' onclick="history.go(-1);">Go back</a>
+                {% if reviewer == applicant.Reviewer_3__c %}
+                    {% if applicant.Reviewer_3_Vote__c == "None" or "?" in applicant.Reviewer_3_Vote__c %}
+                        <input type="submit" value="Save" class="button gold" name="save2">
+                        <input type="submit" value="Submit (Final)" class="button green" name="save">
+                    {% endif %}
+                {% elif reviewer == applicant.Reviewer_4__c %}
+                    {% if applicant.Reviewer_4_Vote__c == "None" or "?" in applicant.Reviewer_4_Vote__c %}
+                        <input type="submit" value="Save" class="button gold" name="save2">
+                        <input type="submit" value="Submit (Final)" class="button green" name="save">
+                    {% endif %}
+                {% endif %}
+            </div>
+        </form>
+    {% endif %}
+
+    <!---Button navigation-->
+    {% if stage == 3 %}
+    <footer class=stickybtn style='width:fit-content'>
+        <ul class="major">
+            <li><a href="#top"><span class="icon solid fa-arrow-up major style2 btn"></span></a></li><br>
+            <li><a href="#rubric"><span class="icon solid fa-arrow-down major style2 btn"></span></a></li>
+        </ul>
+    </footer>
+    {% endif %}
+
+</article>
+{% endblock %}

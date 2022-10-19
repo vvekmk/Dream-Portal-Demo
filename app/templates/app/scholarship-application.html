@@ -1,0 +1,91 @@
+{% extends "app/layout.html" %} {% load getattribute %} {% block content %}
+
+<article id="main">
+  <header class="small">
+    <h2>{{title}}</h2>
+    <p>* = Required fields</p>
+  </header>
+  {% if is_post %} {% if form.errors %}
+  <ul class="errorlist">
+    <li style="margin-top: 1em">
+      There were one or more errors. Scroll down to fix them.
+    </li>
+  </ul>
+  {% endif %} {% endif %}
+  <form action="" method="post" enctype="multipart/form-data">
+    <div class="q_f">
+      {% csrf_token %}
+      <table>
+        {% for field in form.get_non_likert_fields %} {% if 'divider-text' in
+        field.name %}
+        <tr class="divider info">
+          <th colspan="2">{{field.label_tag}}</th>
+        </tr>
+        {% elif 'divider' in field.name %}
+        <tr class="divider">
+          <th colspan="2">{{field.label_tag}}</th>
+        </tr>
+        {% elif field.label == '' %}
+        <tr>
+          <th colspan="2">{{field}}</th>
+        </tr>
+        {% else %}
+        <tr>
+          <th>
+            {{field.label_tag}} {% if field.errors %} {{field.errors}}{% endif
+            %}
+          </th>
+        </tr>
+        <tr>
+          <td>{{field}}</td>
+        </tr>
+        {% endif %} {% endfor %}
+      </table>
+    </div>
+    <br />
+    {% if form.has_likert %}
+    <div
+      style="
+        padding: 10px;
+        background: var(--blue2);
+        border-radius: 10px;
+        max-width: 600px;
+        margin: 0 auto 10px;
+      "
+    >
+      <p class="open" style="text-align: center; margin-bottom: 0px">
+        Please indicate, to the best of your ability, how closely you identify
+        with the statements below.
+      </p>
+    </div>
+
+    {% for group, questions in form.get_likert_fields.items %}
+    <table class="vertical likert">
+      <tr>
+        <th></th>
+        {% for point in scale|getattribute:group %}
+        <td>{{point}}</td>
+        {% endfor %}
+      </tr>
+      {% for field in questions %}
+      <tr>
+        <th>{{field.label_tag}}</th>
+        {% for point in field %}
+        <td>{{point}}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+    {% endfor %} {% endif%}
+    <div style="text-align: center">
+      <input type="submit" value="Save" class="button green" name="save" />
+      <input
+        type="submit"
+        value="Save & Continue"
+        class="button green"
+        name="save&cont"
+      />
+    </div>
+  </form>
+</article>
+{% endblock %}

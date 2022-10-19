@@ -1,0 +1,123 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+
+<article id="main">
+    <header class='small'>
+        <h2>Apply for the Dream Scholarship</h2>
+        <p>Read this page carefully and make sure you select the correct application.</p>
+    </header>
+    <section class="wrapper style5" style='padding-top: 2em'>
+        <div class="inner">
+            <ul style='list-style-type:none;' class='alert'>
+                <li style="margin: 0 10%">If you are a have started your application, are a current Dream Project mentee, or a renewing scholar, <b style="color:red">please log in first and then return to this page.</b></li>
+                <br>
+                <li>If you are a recommender, please select <a href="#choices" style="color: white;">'Submit Recommendation'</a> at the bottom of the page.</li>
+            </ul>
+            <p>The Dream Project Scholarship Application asks you to provide your personal and academic information, a personal statement sharing your story as an immigrant, short paragraphs on your community involvement, among other things. While you are able to save your progress, we highly encourage students to have all materials ready before they begin the process. The last day to submit your application is February 1st.</p>
+
+            <p>We recommend that you prepare your answers to the following questions before getting started, since they will take longer to answer: </p>
+                <ol style='list-style:upper-roman; margin-left: 5%;'>
+                    <li>List of Honors Received</li>
+                    <li>Personal Statement (You must upload your essay to the application in the box provided AS A PDF ATTACHMENT. Please limit your essay to a maximum of 1000 words.)
+                        <ul>
+                            <li>Prompt: In selecting Dream Scholars, the Dream Project is committed to serving students who have demonstrated perseverance in the face of adversity, hard work, and who have been resourceful. Please write an original personal statement in which you tell us about yourself. Feel free to describe some of your life experiences, both positive and negative, that have shaped your character, influenced your future life decisions and fueled your passions. You must upload your essay to the application in the box provided. Please limit your essay to 1000 words.</li>
+                        </ul>
+                    </li>
+                    <li>Activities you are inolved in (Up to five)
+                        <ul>
+                            <li>Paragraph(s) describing an activity you're involved in. Please list the name of your role and describe your responsibilities. This can include activities at school, sports, community, the arts or religious organizations.</li>
+                        </ul>
+                    </li>
+                    <li>Care for others
+                        <ul>
+                            <li>Paragraph(s) describing if you currently have responsibilities to care for others (such as a child or family member)?</li>
+                        </ul>
+                    </li>
+                    <li>Recommendations (2 recommenders)
+                        <ul>
+                            <li>Name, title, email, and phone number (at least one from a teacher or counselor).</li>
+                        </ul>
+                    </li>
+                    <li>Colleges/Universities applied to
+                        <ul>
+                            <li>Please list all colleges and universities you have applied to. If you have already been accepted to a school, please note that as well (High School Applicants Only).</li>
+                        </ul>
+                    </li>
+                </ol>
+                <p>You will also need the following documents:</p>
+                <ul style='list-style: square; margin-left: 5%;'>
+                    <li>High School Transcript, unofficial is fine</li>
+                    <li>College/University transcript (College/University Applicants Only)</li>
+                </ul>
+                <p>You may also provide the following extra documents to strengthen your application:</p>
+                <ul style='list-style: square; margin-left: 5%;'>
+                    <li>Score report: SAT</li>
+                    <li>Score report: ACT</li>
+                </ul>
+                <p><u><b style='color: red'>All documents must be in one of the following formats: PDF (preferred), PNG, JPEG or JPG.</b></u></p>
+                <p> If your documents are in any other format, <a href='https://m.wikihow.com/Convert-a-File-Into-PDF' target="_blank">please convert them to pdf before submission.</a></p>
+                <br>
+
+            <button id="dropdown-btn" class="button" onclick="show('dropdown')">Frequently Asked Questions (FAQs) <i class="fas fa-angle-double-down"></i></button>
+                <div id="dropdown">
+                    <ul>
+                        <li>
+                            <p>When is the deadline?</p>
+                            <p>February 1st at 11:59 PM.</p>
+                        </li>
+                        <li>
+                            <p>Does the Dream Portal save my progress?</p>
+                            <p>You can save your progress but we recommend that you have all the documents prior to starting the application.</p>
+                        </li>
+                        <li>
+                            <p>Can I mail in my application/Is there a different way to apply?</p>
+                            <p>Applications may only be submitted using this online portal.</p>
+                        </li>
+                        <li>
+                            <p>My documents are not in the accepted formats, what do I do?</p>
+                            <p>If you have documents that are in a file that is not accepted, please find a way to convert it&mdash;a quick Google search will show you how. Submitting files as PDFs is preferred because it assures that the file is seen as intedended.</p>
+                        </li>
+                        <li>
+                            <p>I applied but did not receive a confirmation email!</p>
+                            <p>If your application went through and you did not receive any confirmation, please <a href='mailto:carlos@dreamproject-va.org'>reach out</a> and I will take a look.</p>
+                        </li>
+                        <li>
+                            <p>Am I eligible as a High School Junior?</p>
+                            <p>No, but we look forward to seeing your application next year!</p>
+                        </li>
+                        <li>
+                            <p>Am I eligible as a U.S. Citizen or Permanent Resident (Greencard Holder)?</p>
+                            <p>We prioritize applications from students with immigration statuses that create barriers to accessing a college education, we do not recommend you apply if you have a green card or are a U.S. Citizen.</p>
+                        </li>
+                        <li>
+                            <p>I'm having trouble/my question is not up here!</p>
+                            <p>Please email me at <a href='mailto:carlos@dreamproject-va.org'>carlos@dreamproject-va.org</a> and I will try to help you.</p>
+                        </li>
+                    </ul>
+                </div>
+            <br>
+            <ul class="icons major v2" style='text-align:center;'>
+				<li><a href="{% url 'submit_rec' %}"><span class="icon fa-envelope major style1 btn"><span class="label show">Submit a Recommendation</span></span></a></li>
+                {% if open %}
+                <li>
+                    <a href="{% url 'scholarship_redir' %}">
+                        <span class="icon fa-user major style1 btn">
+                            <span class="label show">Begin Application</span>
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'scholarship_redir' %}">
+                        <span class="icon fa-arrow-circle-right major style1 btn">
+                            <span class="label show">Continue Application</span>
+                        </span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

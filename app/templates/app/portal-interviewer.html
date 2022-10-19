@@ -1,0 +1,328 @@
+{% extends "app/layout.html" %}
+
+{% load access access_label access_comment view_comment %}
+
+{% load staticfiles %}
+
+{% block content %}
+
+<article id="main">
+    <header class='small'>
+        <h2>{{title}}</h2>
+        {% if stage == 2 %}
+        <p>Students are organized alphabetically and not by interview time.</p>
+        {% endif %}
+    </header>
+    <br>
+    {% if stage == 2 %}
+        <div class='vertical'>
+            <form method="POST">
+                {% csrf_token %}
+                <table style="width: 90%; margin: 0 auto;">
+                    <tr>
+                        <th>Last</th>
+                        <th>First</th>
+                        <th>Decision</th>
+                        <th>Type</th>
+                        <th>Application</th>
+                    </tr>
+
+                    {% for applicant in applicants.records %}
+
+                            <td style='text-align: center;'>{{applicant.Contact__r.LastName}}</td>
+                            <td style='text-align: center;'>{{applicant.Contact__r.FirstName}}</td>
+                            <td style='text-align: center; font-size:30px'>
+                            {% for record in applicant.Scholarship_Assignments__r.records %}
+                                {% if record.Interview_Code__c %}
+                                    {% if record.Decision__c == 0 %} 
+                                            <i class="fas fa-thumbs-down"></i>
+                                    {% elif record.Decision__c == 1 %} 
+                                        <i class="fas fa-balance-scale"></i>
+                                    {% elif record.Decision__c == 2 %} 
+                                        <i class="fas fa-thumbs-up"></i>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            </td>
+
+                            <td style="max-width: 50px;">{{applicant.Type__c}}</td>
+
+                            <td>
+                                <div style='text-align: center'>
+                                    <input type="submit" value="View" class="blue" name={{applicant.Id}}>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <br>
+                <div style='text-align: center;'>
+                    <a href="#" class='button red' onclick="history.go(-1);">Go back</a>
+                </div>
+            </form>
+    {% elif stage == 3 %}
+        <div class='horizontal'>
+            <!--Flags for B12 and Probation-->
+            <div class="flags">
+                <ul>
+                    {% if applicant.Beyond_12__c == 'True' %}
+                        <li><span class="icon solid fa-flag style2">Beyond12</span></li>
+                    {% endif %}
+
+                    {% if applicant.Probation__c == 'True' %}
+                        <li><span class="icon solid fa-exclamation-circle style2">Probation</span></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <table>
+                <tr class='divider'><th colspan = 2>General</th></tr>
+                <tr><th>First</th><td>{{applicant.First_Name__c}}</td></tr>
+                <tr><th>Last</th><td>{{applicant.Last_Name__c}}</td></tr>
+                <tr><th>Phone</th><td>{{applicant.Phone__c}}</td></tr>
+                <tr><th>Email</th><td>{{applicant.Email__c}}</td></tr>
+                <tr><th>Country</th><td>{{applicant.Country__c}}</td></tr>
+                <tr><th>Ethnicity</th><td>{{applicant.Ethnicity__c}}</td></tr>
+                <tr><th>Birthdate</th><td>{{applicant.Birthdate__c}}</td></tr>
+                
+                {% if applicant.Type__c != 'Renewal' %}
+                <tr><th>Employed</th><td>{{applicant.Employment__c}}</td></tr>
+                <tr><th>English Proficiency</th><td>{{applicant.English_Proficiency__c}}</td></tr>
+                <tr><th>Status</th><td>{{applicant.Favorite_Animal__c}}</td></tr>
+                {% endif %}
+
+                <!-- <tr class='divider'><th colspan = 2>Address</th></tr>
+                <tr><th>Street</th><td>{{applicant.MailingStreet}}</td></tr>
+                <tr><th>City</th><td>{{applicant.MailingCity}}</td></tr>
+                <tr><th>State</th><td>{{applicant.MailingState}}</td></tr>
+                <tr><th>ZIP</th><td>{{applicant.MailingPostalCode}}</td></tr> -->
+                {% if applicant.Type__c == 'New (College)' %}
+                    <tr class='divider'><th colspan = 2>College Information</th></tr>
+                    <tr><th>Name</th><td>{{applicant.Current_College__c}}</td></tr> 
+                    <tr><th>Major</th><td>{{applicant.Current_Major__c}}</td></tr>
+                    <tr><th>Minor</th><td>{{applicant.Current_Minor__c}}</td></tr>
+                    <tr><th>GPA</th><td>{{applicant.College_GPA__c}}</td></tr>
+                    <tr><th>Credits</th><td>{{applicant.Current_Number_of_Credits__c}}</td></tr>
+                {% endif %}
+                
+                {% if applicant.Type__c == 'Renewal'%}
+                    <tr><th>Expected</th><td>{{applicant.Expected_Graduation__c}}</td></tr>
+                    {% if applicant.Low_GPA_Explanation__c %}<tr><th>GPA Below 2.5</th><td>{{applicant.Low_GPA_Explanation__c}}</td></tr>{% endif %}
+                    {% if applicant.DNR_Explanation__c %}<tr><th>DNR Explanation</th><td>{{applicant.DNR_Explanation__c}}</td></tr>{% endif %}
+                        
+               {% else %}
+                    <tr class='divider'><th colspan = 2>High School Information</th></tr>
+                
+                    <tr><th>Name</th><td>{{applicant.High_School_Name__c}}</td></tr>
+                    <tr><th>City</th><td>{{applicant.High_School_City__c}}</td></tr>
+                    <tr><th>GPA</th><td>{{applicant.HS_GPA__c}}</td></tr>
+                    <tr><th>Test Scores</th><td>{{applicant.Test_Scores__c}}</td></tr>
+                    <tr class='divider'><th colspan = 2>Recommender Information</th></tr>
+                    <tr><th>Rec #1</th><td>{{applicant.Recommender_1__c}}</td></tr>
+                    <tr><th>Rec #2</th><td>{{applicant.Recommender_2__c}}</td></tr>
+                    <!-- <tr><th>Interview</th>
+                        <td>
+                            {% if applicant.Interview_Vote__c == 2 %} Yes
+                            {% elif applicant.Interview_Vote__c == 1 %} Maybe
+                            {% elif applicant.Interview_Vote__c == 0 %} No
+                            {% else %} None
+                            {% endif %}
+                        </td>
+                    <tr><th>Interview Comments</th><td>{{applicant.Interview_Comments__c}}</td></tr> -->
+                {% endif %}
+            </table>
+            <br><br><br>
+            {% if applicant.Type__c != 'Renewal' %}
+                <table style='width: 95%; margin: 0 auto'>
+                    {% autoescape off %}
+                        <tr class='divider'><th colspan = 2>Honors</th></tr>
+                        <tr><td colspan = 2>{{applicant.List_of_Honors__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>College Applied to</th></tr>
+                        <tr><td colspan = 2>{{applicant.Colleges_Applied_to__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Financial Thoughts</th></tr>
+                        <tr><td colspan = 2>{{applicant.Financial_Thoughts__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 1</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_1__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 2</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_2__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 3</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_3__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 4</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_4__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Activity 5</th></tr>
+                        <tr><td colspan = 2>{{applicant.Activity_5__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Care for Others</th></tr>
+                        <tr><td colspan = 2>{{applicant.Other_Responsibilities__c}}</td></tr>
+                        <tr class='divider'><th colspan = 2>Employment Description</th></tr>
+                        <tr><td colspan = 2>{{applicant.Employment_Description__c}}</td></tr>
+                    {% endautoescape %}
+                </table>
+            {% endif %}
+        </div>
+        <br><br><br>
+        <h2 style='text-align:center'>Supporting Documents</h2>
+
+        {% for file in attachments.pdfs %}
+        <p style="width: 900px; margin:0 auto">
+            {{file.name}} 
+        </p>
+        <div class='attachments' id="{{file.varname}}"></div><br><br>
+        {% endfor %}
+
+        {% for file in attachments.images %}
+        <p style="width: 900px; margin:0 auto">{{file.name}}</p>
+        <div class='attachments'>
+            <div style='text-align:center'>
+                <img style='max-width:75%; margin: 0 auto' src="data:{{file.type}};base64,{{file.file}}">            
+            </div>
+        </div>
+        {% endfor %}
+
+        <script>           
+        //Dictionary of attachments
+        var filenames = [{% for file in attachments.pdfs %}"{{file.varname}}"{% if not forloop.last %},{% endif %}{% endfor %}];
+        var files = [{% for file in attachments.pdfs %}"{{file.file}}"{% if not forloop.last %},{% endif %}{% endfor %}];
+        
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "{% static 'app/scripts/pdf.worker.js' %}"
+        for (file in files) {
+            let filename = filenames[file]          
+            var loadingTask = pdfjsLib.getDocument({data: atob(files[file])})
+            
+            var thePdf = null;
+
+            loadingTask.promise.then(function(pdf) {
+                thePdf = pdf;
+                viewer = document.getElementById(filename);
+
+                for(page = 1; page <= pdf.numPages; page++) 
+                    {
+                        canvas = document.createElement("canvas");    
+                        canvas.className = 'pdf-page-canvas';         
+                        viewer.appendChild(canvas);            
+                        renderPage(page, canvas);
+                    }
+            });
+
+            function renderPage(pageNumber, canvas) {
+                thePdf.getPage(pageNumber).then(function(page) {
+                    
+                    var scale = 5;
+                    var viewport = page.getViewport({scale: scale});
+                    var context = canvas.getContext('2d');
+
+                    if (viewport.height > 4300 || viewport.width > 4300){
+                        var viewport = page.getViewport({scale: 1});    
+                    }
+                    
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                
+                    var renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                        };
+                    var renderTask = page.render(renderContext);
+                    renderTask.promise.then(function () {});
+                })
+            };
+
+        }
+        </script>
+
+        </div>
+        <br>
+        <a id="rubric"></a>
+        <form method="POST">
+            {% csrf_token %}
+
+            {% for comment in comments %}
+                <p class='comments'>
+                    {% if comment.Complete__c and comment.Interview_Code__c %}
+                        {% access_label form comment.Id %}
+                        {% view_comment form comment.Id %}
+                    {% elif reviewer == True and comment.Interview_Code__c %}
+                        {% access_label form comment.Id %}
+                        {% access form comment.Id %}
+                    {% endif %}
+                </p>
+                <br><br>
+            {% endfor %}
+           
+            <table class='vertical likert'>
+            <tr><th colspan=3 style="text-align:center;">Panel Decision:</th></tr>
+            
+            {% for comment in comments %}
+                {% if comment.Interview_Code__c and comment.Complete__c %}
+                    <tr>
+                        <td colspan=3 style="text-align:center;">
+                        {% if comment.Decision__c == 2 %}
+                        <i class="fas fa-thumbs-up" style='font-size:30px'></i><br>
+                        {% elif comment.Decision__c == 1 %}
+                        <i class="fas fa-balance-scale" style='font-size:30px'></i><br>
+                        {% elif comment.Decision__c == 0 %}
+                        <i class="fas fa-thumbs-down" style='font-size:30px'></i><br>
+                        {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+
+            {% for comment in comments %}
+                {% if reviewer and not comment.Complete__c %}
+                <tr style='text-align: center;'>
+                    <td>
+                        <label for="{{ form.Decision__c.0.id_for_label }}">
+                            <i class="fas fa-thumbs-up" style='font-size:30px'></i><br>
+                            <span>{{form.Decision__c.0.choice_label}}</span><br>
+                            {{form.Decision__c.0.tag}}
+                        </label>
+                    </td>
+                    <td>
+                        <label for="{{ form.Decision__c.1.id_for_label }}">
+                            <i class="fas fa-balance-scale" style='font-size:30px'></i><br>
+                            <span>{{form.Decision__c.1.choice_label}}</span><br>
+                            {{form.Decision__c.1.tag}}
+                        </label>
+                    </td>
+                    <td>
+                        <label for="{{ form.Decision__c.2.id_for_label }}">
+                            <i class="fas fa-thumbs-down" style='font-size:30px'></i><br>
+                            <span>{{form.Decision__c.2.choice_label}}</span><br>
+                            {{form.Decision__c.2.tag}}
+                        </label>
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </table>
+
+            <input type="hidden" name="id" value='{{form.id}}'/>
+            <input type="hidden" name="reviewer" value='{{form.reviewer}}'/>
+
+            </div>
+            
+            <br>
+            <br>
+
+            <div style='text-align: center;'>
+                <a href="#" class='button red' onclick="history.go(-1);">Go back</a>
+                {% if reviewer %}
+                    <input type="submit" value="Save" class="button gold" name="save2">
+                    <input type="submit" value="Submit (Final)" class="button green" name="save">
+                {% endif %}
+            </div>
+        </form>
+    {% endif %}
+
+    <!---Button navigation-->
+    {% if stage == 3 %}
+    <footer class=stickybtn  style='width:fit-content'>
+        <ul class="major">
+            <li><a href="#top"><span class="icon solid fa-arrow-up major style2 btn"></span></a></li>
+            <br>
+            <li><a href="#rubric"><span class="icon solid fa-arrow-down major style2 btn"></span></a></li>
+        </ul>
+    </footer>
+    {% endif %}
+
+{% endblock %}

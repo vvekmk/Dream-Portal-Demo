@@ -1,0 +1,80 @@
+{% extends "app/layout.html" %} {% load getattribute %} {% block content %}
+
+<article id="main">
+  <header class="small">
+    <h2>{{title}}</h2>
+    <p>* = Required fields</p>
+  </header>
+  <br />
+  {{form.errors}}
+  <form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %} {% if form.has_likert %}
+    <br />
+    <h2 style="text-align: center; margin: 20px">
+      How <i>comfortable</i> do you feel...
+    </h2>
+    <br />
+    {% autoescape on %}
+    <div class="horizontal">
+      {% for group, questions in form.get_likert_fields.items %}
+      <table class="likert">
+        <tr style="background: none">
+          <th style="background: none"></th>
+          {% for point in scale|getattribute:group %}
+          <td style="text-align: center; font-weight: 600">{{point}}</td>
+          {% endfor %}
+        </tr>
+        {% for field in questions %}
+        <tr>
+          <th class="label-override">{{field.label_tag}}</th>
+          {% for point in field %}
+          <td>
+            <label style="margin: 0" for="{{ point.id_for_label }}">
+              {{point.tag}}
+            </label>
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+      <br />
+      {% endfor %}
+    </div>
+    {% endautoescape %} {% endif%}
+
+    <div class="q_f horizontal">
+      <table>
+        {% for field in form.get_non_likert_fields %} {% if 'divider-text' in
+        field.name %}
+        <tr class="divider info">
+          <th colspan="2">{{field.label_tag}}</th>
+        </tr>
+        {% elif 'divider' in field.name %}
+        <tr class="divider">
+          <th colspan="2">{{field.label_tag}}</th>
+        </tr>
+        {% elif 'break' in field.name %}
+      </table>
+      <br /><br /><br />
+      <table>
+        {% elif field.label == '' %}
+        <tr>
+          <th colspan="2">{{field}}</th>
+        </tr>
+        {% else %}
+        <tr>
+          <th>{{field.label_tag}}</th>
+          <td>{{field}}</td>
+        </tr>
+        {% endif %} {% endfor %}
+      </table>
+      <br />
+    </div>
+
+    <div style="text-align: center">
+      <input type="submit" value="Submit" class="button green" name="save" />
+    </div>
+  </form>
+
+  {% endblock %}
+</article>

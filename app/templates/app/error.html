@@ -1,0 +1,24 @@
+{% extends "app/layout.html" %} {% block content %}
+
+<article id="main">
+  <header class="small">
+    <h2>Oh no!</h2>
+  </header>
+  <section class="wrapper style5">
+    <div class="inner">
+      <h3>Something broke.</h3>
+      <p>Don't worry though&mdash;we'll have it fixed soon.</p>
+    </div>
+  </section>
+</article>
+
+{% endblock %} {% block scripts %} {% load staticfiles %}
+<script src="{% static 'app/scripts/jquery.validate.min.js' %}"></script>
+<script src="{% static 'app/scripts/jquery.min.js' %}"></script>
+<script src="{% static 'app/scripts/jquery.scrollex.min.js' %}"></script>
+<script src="{% static 'app/scripts/jquery.scrolly.min.js' %}"></script>
+<script src="{% static 'app/scripts/browser.min.js' %}"></script>
+<script src="{% static 'app/scripts/breakpoints.min.js' %}"></script>
+<script src="{% static 'app/scripts/util.js' %}"></script>
+<script src="{% static 'app/scripts/main.js' %}"></script>
+{% endblock %}

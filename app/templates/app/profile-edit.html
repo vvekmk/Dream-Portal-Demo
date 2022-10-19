@@ -1,0 +1,62 @@
+﻿{% extends "app/layout.html" %}
+
+{% block content %}
+
+<article id="main">
+    <header class='small'>
+        <h2>Edit Profile</h2>
+        <p>If you have recently changed any of the information below, <br>or any information is missing, please update it!</p>
+    </header>
+    <!--Universal Boxes-->
+    <div class='small-tables horizontal'>
+        <form action="" method="post" id="editform">
+            {% csrf_token %}
+            <div>
+                {% for table, options in form.chunks.items %}
+                    <table>
+                    <caption>{{table}}</caption>
+                    {% for key, line in options.items %}
+                        <tr>
+                            {% for field in form %}
+                                {% if key|title == field.name|title %}
+                                    <th>{{line}}:</th>
+                                    <td>{{field}}</td>
+                                {% endif%}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </table>
+                {% endfor %}
+            </div>
+
+            <!--NS SCHOLARSHIPS-->
+            {% if user.type_of_user == 'donor' %}
+                <p style='text-align: center;font-size:20px; margin-top:10px; margin-bottom: -15px;'>Named Scholarship(s)</p>
+                {% for i in range %}
+                <table>
+                    {% for field in form.get_scholarship_fields %}
+                        {% if 'name' in field.label and i|stringformat:"i" in field.label %}
+                            <tr><th> Name: </th>
+                            <td>{{ field }}</td></tr>
+                        {% elif 'desc' in field.label and i|stringformat:"i" in field.label %}
+                            <tr><th> Description: </th>
+                            <td>{{field}}</td></tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {{form.errors}}
+            <div style='text-align: center'>
+                <input type="hidden" name="next" value="{{ request.path }}">
+
+                <input type="submit" value="Cancel" class="red" name="cancel" formnovalidate>
+                <input type="submit" value="Save Changes" class="green" name="save">
+            </div>
+        </form>
+    </div>
+</article>
+
+{% endblock %}

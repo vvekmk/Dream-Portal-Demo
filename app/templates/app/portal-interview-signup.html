@@ -1,0 +1,73 @@
+{% extends "app/layout.html" %} {% block content %}
+
+<article id="main">
+  <header class="small">
+    <h2>
+      {% if student%}Sign up for an Interview{% else %}Volunteer{% endif %}
+    </h2>
+    <p style="text-align: center">
+      If you can no longer make one of these days, please let us know as soon as
+      possible!
+    </p>
+  </header>
+  <br />
+  <div class="vertical">
+    <form action="" method="post">
+      {% csrf_token %} {% for name, jobs in events.items %}
+      <table style="width: 90%">
+        <tr>
+          <th
+            colspan="{%"
+            if
+            not
+            student
+            %}2{%
+            else
+            %}3{%
+            endif
+            %}
+            style="font-size: 2vw"
+          >
+            {{name}}{% if not student %}| 5:30 - 9:00pm{% endif %}
+          </th>
+        </tr>
+
+        {% if not student %} {% for job in jobs %}
+        <tr>
+          <td>{{job.Name}}</td>
+          <td>
+            <input
+              type="submit"
+              value="Sign Up"
+              class="blue"
+              name="{{job.Id}}"
+            />
+          </td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td>Times</td>
+          <!--<td>Phone Interview</td>-->
+          <td></td>
+        </tr>
+        {% for time in jobs.0 %}
+        <tr>
+          <td>Interview at {{time}}pm</td>
+          <!--<td><input type="checkbox" class="select_override center phone-warning" onclick="phoneWarning(this)" name="phone"></td>-->
+          <td>
+            <input
+              type="submit"
+              value="Sign Up"
+              class="blue"
+              name="{{jobs.1}}|{{time}}"
+            />
+          </td>
+        </tr>
+        {% endfor %} {% endif %}
+      </table>
+      <br />
+      {% endfor %}
+    </form>
+    {% endblock %}
+  </div>
+</article>
