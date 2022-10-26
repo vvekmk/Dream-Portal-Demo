@@ -32,7 +32,7 @@ ADMINS = [('Carlos', 'carlos@dreamproject-va.org')]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', False)
 
-ALLOWED_HOSTS = ['dreamportaldemo.herokuapp.com']
+ALLOWED_HOSTS = [*]
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
